@@ -405,6 +405,12 @@ namespace Unity.Cinemachine
             if (CinemachineCore.SoloCamera == cam || m_BlendManager.IsLive(cam))
                 return true;
 
+            var camera = CinemachineCore.GetVirtualCamera(0);
+            if (camera is DynamicCinemachineMixingCamera mixingCamera)
+            {
+                return mixingCamera.IsLiveChild(cam, dominantChildOnly);
+            }
+
             // Walk up the parents
             var parent = cam.ParentCamera;
             if (parent != null && parent.IsLiveChild(cam, dominantChildOnly))
