@@ -39,9 +39,9 @@ namespace Unity.Cinemachine
         float m_LiveChildPercent;
 
         [field: SerializeField] private List<CameraWeightPair> CameraWeightPairs { get; set; } = new();
-        protected bool _childCamerasDisposed = false;
+        protected bool _childCamerasDisposed = true;
 
-        private List<CinemachineVirtualCameraBase> _childCamerasReference;
+        private List<CinemachineVirtualCameraBase> _childCamerasReference = null;
         // private List<CinemachineVirtualCameraBase> _childCameras;
         // public List<CinemachineVirtualCameraBase> ChildCameras 
         // { 
@@ -68,7 +68,11 @@ namespace Unity.Cinemachine
         protected override void Start()
         {
             base.Start();
+            base.UpdateCameraCache();
+            _updatingCache = true;
             _childCamerasReference = ChildCameras;
+            _updatingCache = false;
+            //_childCamerasReference = ChildCameras;
         }
         
         /// <inheritdoc />
@@ -194,17 +198,20 @@ namespace Unity.Cinemachine
                     base.UpdateCameraCache();
                     _childCamerasReference = ChildCameras;
                 }
-                _childCamerasReference?.Clear();
-                _childCamerasReference?.AddRange(CameraWeightPairs.Select(pair => pair.Camera));
+
+                UpdateCameraList();
                 
                 _updatingCache = false;
                 return false;
             }
-            _childCamerasReference?.Clear();
-            _childCamerasReference?.AddRange(CameraWeightPairs.Select(pair => pair.Camera));
+
+            UpdateCameraList();
+            //_childCamerasReference?.AddRange(CameraWeightPairs.Select(pair => pair.Camera));
             
             _updatingCache = false;
             return true;
+
+
                 
             // if (!base.UpdateCameraCache())
             //     return false;
@@ -224,6 +231,20 @@ namespace Unity.Cinemachine
             //     if (m_ChildCameras[i].transform.parent != transform)
             //         m_ChildCameras.RemoveAt(i);
             // return true;
+        }
+        private void UpdateCameraList()
+        {
+            _childCamerasReference?.Clear();
+            for (int i = CameraWeightPairs.Count - 1; i >= 0; --i)
+            {
+                CameraWeightPair pair = CameraWeightPairs[i];
+                if (!pair.Camera)
+                {
+                    CameraWeightPairs.Remove(pair);
+                    continue;
+                }
+                _childCamerasReference?.Add(pair.Camera);
+            }
         }
         public new void InvalidateCameraCache() 
         {
