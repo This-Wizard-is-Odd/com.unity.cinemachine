@@ -109,7 +109,7 @@ namespace Unity.Cinemachine
         public StandbyUpdateMode StandbyUpdate = StandbyUpdateMode.RoundRobin;
 
         // Cache for GameObject name, to avoid GC allocs
-        string m_CachedName;
+        string m_CachedName = null;
         bool m_WasStarted;
         bool m_ChildStatusUpdated = false;
         CinemachineVirtualCameraBase m_ParentVcam = null;
